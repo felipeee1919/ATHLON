@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#FFD700">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ATHLON</title>
+<link rel="preload" as="video" href="media/hero.mp4"> <!-- ajusta ruta -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>
+  :root{
+    --negro:#000;
+    --negro2:#0b0b0b;
+    --amarillo:#FFD700;
+    --amarillo-10: rgba(255,215,0,.10);
+    --amarillo-20: rgba(255,215,0,.20);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background: var(--negro);
+    color:#f1f1f1;
+    min-height:100vh;
+  }
+
+  /* Barra superior fija */
+  .topnav{
+    position:fixed; top:0; left:0; right:0; z-index:1000;
+    display:flex; gap:10px; align-items:center; justify-content:center;
+    background: #070707; border-bottom:2px solid var(--amarillo);
+    padding:10px 12px;
+    height: 60px; /* Nueva línea - altura específica */
+}
+  .topnav .logo{
+    position:absolute; left:16px; font-weight:900; letter-spacing:1px;
+    color:var(--amarillo);
+  }
+  .topnav button{
+    background:transparent; color:var(--amarillo);
+    border:2px solid transparent; padding:10px 16px;
+    border-radius:10px; font-weight:700; cursor:pointer;
+    transition:.2s;
+  }
+  .topnav button.active,
+  .topnav button:hover{ border-color:var(--amarillo); background:var(--amarillo-10); }
+
+  /* Compensar barra fija */
+ .content{padding-top: 50px;}
+
+  /* HERO con video de fondo */
+  .hero {
+  position: relative;
+  height: 100vh; /* ocupa toda la pantalla */
+  overflow: hidden;
+  border-bottom: 2px solid var(--amarillo);
+  }
+  .hero video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  }
+  .hero::after{
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(to top, rgba(0,0,0,.65), rgba(0,0,0,.2));
+  }
+  .hero .hero-content{
+    position:relative; z-index:2; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:0 16px;
+  }
+  .hero h1{
+    font-size:clamp(2rem, 5vw, 3.2rem);
+    color:#fff; text-shadow:0 0 30px rgba(0,0,0,.7);
+    margin-bottom:10px;
+  }
+  .hero p{
+    font-size:clamp(1rem, 2.2vw, 1.25rem);
+    color:#f5f5f5; opacity:.9; margin-bottom:22px;
+  }
+  .cta{
+    background:var(--amarillo); color:#000; font-weight:900;
+    border:none; padding:12px 22px; border-radius:12px; cursor:pointer;
+    box-shadow:0 6px 18px var(--amarillo-20); transition:.2s;
+  }
+  .cta:hover{ transform:translateY(-2px); }
+  
+  /* Contenedores y tarjetas */
+  .container{ max-width:1100px; margin:0 auto; padding:24px 16px; }
+  .card{
+    background:#111; border:2px solid var(--amarillo); border-radius:16px;
+    padding:24px; margin-bottom:26px; box-shadow:0 10px 30px rgba(255,215,0,.15);
+  }
+  h2{ color:#fff; margin-bottom:12px; }
+  .muted{ color:#cfcfcf; opacity:.85; }
+
+  .form-group{ margin-bottom:16px; }
+  label{ display:block; margin-bottom:6px; color:var(--amarillo); font-weight:800; }
+  input, select, textarea{
+    width:100%; padding:12px; border-radius:10px;
+    border:2px solid var(--amarillo); background:#000; color:#f1f1f1;
+  }
+  .btn{
+    background:var(--amarillo); color:#000; padding:12px 20px; border:none;
+    border-radius:10px; font-weight:800; cursor:pointer;
+  }
+  .btn:hover{ box-shadow:0 6px 14px var(--amarillo-20); }
+
+  /* Pestañas (secciones) */
+  .tab-content{ display:none; }
+  .tab-content.active{ display:block; }
+
+  /* Nutricalculadora */
+  .nutri-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+  .summary{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px; margin-top:16px;
+  }
+  .chip{
+    background: #0e0e0e; border:2px solid var(--amarillo);
+    border-radius:12px; padding:12px; text-align:center;
+  }
+  .chip h4{ color:var(--amarillo); font-size:1.4rem; margin-bottom:4px; }
+
+  .plate-list{ margin-top:14px; }
+  .plate-item{
+    display:flex; justify-content:space-between; align-items:center;
+    background:#0d0d0d; border:1px solid #2a2a2a; border-left:4px solid var(--amarillo);
+    padding:10px 12px; border-radius:10px; margin-bottom:8px;
+  }
+  .plate-item button{
+    background:transparent; color:var(--amarillo); border:1px solid var(--amarillo);
+    padding:4px 10px; border-radius:8px; cursor:pointer;
+  }
+
+  /* Gráfico */
+  .chart-container{ position:relative; height:360px; }
+
+  .video-hero {
+  position: relative;
+  width: 100%;
+  height: 100vh; /* ocupa toda la pantalla */
+  overflow: hidden;
+  margin: 20px 0;
+  border: 2px solid var(--amarillo);
+  border-radius: 12px;
+}
+
+.video-hero video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* llena sin deformar */
+  transform: translate(-50%, -50%);
+}
+
+</style>
+</head>
+<body>
+  <div class="topnav">
+   <div class="logo" onclick="showTab(event, 'home')" style="cursor:pointer;">ATHLON</div>
+  <button onclick="showTab(event,'workout')" style="display:none;">Entrenamiento</button>
+  <button onclick="showTab(event,'nutrition')">Nutrición</button>
+  <button onclick="showTab(event,'progress')" style="display:none;">Progreso</button>
+  <button onclick="showTab(event,'contact')">Contacto</button>
+  <button id="btnRegister" onclick="showTab(event,'register')">Registrarse</button>
+  <button id="btnAsignar" style="display:none;" onclick="showTab(event,'asignar')">Asignar Planes</button>
+  <button id="btnMisPlanes" style="display:none;" onclick="showTab(event,'misplanes')">Mis Planes</button>
+ </div>
+</div>
+
+  <div class="content">
+    <!-- INICIO / HERO -->
+    <section id="home" class="tab-content active">
+      <div class="hero">
+        <!-- Usa tu archivo local -->
+        <video src="video.mp4" autoplay muted loop playsinline></video>
+        <div class="hero-content">
+          <h1>Fitness para todos. De todas las formas.</h1>
+          <p>Entrená mejor, comé mejor y seguí tus avances en un mismo lugar.</p>
+          <button class="cta" onclick="showTab(event,'nutrition')">Probar la Nutricalculadora</button>
+        </div>
+      </div>
+      <div class="container">
+        <div class="card">
+          <h2 class="muted">Bienvenido a ATHLON</h2>
+          <p class="muted">Una plataforma pensada para profesionales y usuarios que integra entrenamiento, nutrición y seguimiento.</p>
+        </div>
+      </div>
+  <div class="container">
+    <h2>Sobre nosotros</h2>
+    <p>
+      Somos un equipo conformado por <strong>Felipe P., Ignacio B. y Mateo J.</strong>, estudiantes de 6to “B” de la materia Aplicaciones Informáticas.
+      Creamos <strong>Athlon</strong> como una plataforma digital que combina entrenamiento, nutrición y seguimiento del progreso en un solo espacio.
+    </p>
+    <p>
+      Nuestra motivación surgió al ver que muchas personas abandonan sus planes de entrenamiento por falta de constancia, rutinas genéricas o ausencia de un
+      sistema que permita visualizar sus avances. Con Athlon buscamos dar una solución integral que acompañe al usuario en todo su camino hacia una vida más saludable.
+    </p>
+    <h3 style="color:var(--amarillo); margin-top:20px;">Algunos de nuestros objetivos</h3>
+    <ul style="margin-top:10px; padding-left:20px;">
+      <li>Facilitar la comunicación entre profesionales y usuarios para rutinas personalizadas.</li>
+      <li>Incorporar un sistema visual de seguimiento del progreso.</li>
+      <li>Evaluar el impacto en la constancia y motivación de los usuarios.</li>
+    </ul>
+    <p style="margin-top:15px;">
+      Athlon no es solo una app de fitness, sino una herramienta completa para que los usuarios puedan entrenar de forma organizada, 
+      aprender con confianza y mantener hábitos saludables a largo plazo.
+    </p>
+  </div>
+  <div class="card" style="text-align:center;">
+  <h2>Hábitos y Estilos de Vida Saludables</h2>
+  <p class="muted" style="margin-bottom:20px;">
+    Descargá gratis nuestra guía con consejos prácticos para mejorar tu bienestar.
+  </p>
+  <button class="btn" onclick="descargarPDF()">Descargar PDF</button>
+</div>
+
+<script>
+  function descargarPDF(){
+    const link = document.createElement("a");
+    link.href = "habitos_saludables.pdf"; // ruta de tu archivo
+    link.download = "Habitos_Saludables.pdf"; // nombre con el que se guarda
+    link.click();
+  }
+</script>
+</div>
+
+
+
+    </section>
+<section id="login" class="tab-content">
+  <div class="container">
+    <div class="card" style="max-width:400px; margin:0 auto; text-align:center;">
+      <h2>Iniciar sesión</h2>
+      <div class="form-group">
+        <label>Email:</label>
+        <input type="email" id="loginEmail" placeholder="tuemail@mail.com">
+      </div>
+      <div class="form-group">
+        <label>Contraseña:</label>
+        <input type="password" id="loginPassword" placeholder="********">
+      </div>
+      <button class="btn" onclick="iniciarSesion()">Entrar</button>
+      <p style="margin-top:15px; color:#ccc;">
+        ¿No tienes cuenta? 
+        <a href="javascript:void(0)" onclick="showTab(event,'register')" style="color:var(--amarillo); font-weight:700;">
+          Regístrate aquí
+        </a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- REGISTER -->
+<section id="register" class="tab-content">
+  <div class="container">
+    <div class="card" style="max-width:400px; margin:0 auto; text-align:center;">
+      <h2>Crear cuenta</h2>
+      <div class="form-group">
+        <label>Nombre:</label>
+        <input type="text" id="registerName" placeholder="Tu nombre">
+      </div>
+      <select id="rol">
+      <option value="entrenador">Entrenador</option>
+      <option value="entrenado">Entrenado</option>
+    </select>
+    
+      <div class="form-group">
+        <label>Email:</label>
+        <input type="email" id="registerEmail" placeholder="tuemail@mail.com">
+      </div>
+      <div class="form-group">
+        <label>Contraseña:</label>
+        <input type="password" id="registerPassword" placeholder="********">
+      </div>
+      <button class="btn" onclick="registrarUsuario()">Registrarme</button>
+      <p style="margin-top:15px; color:#ccc;">
+        ¿Ya tienes cuenta? 
+        <a href="javascript:void(0)" onclick="showTab(event,'login')" style="color:var(--amarillo); font-weight:700;">
+          Inicia sesión aquí
+        </a>
+      </p>
+    </div>
+  </div>
+</section>
+
+    <!-- ENTRENAMIENTO (solo registro) -->
+   <section id="workout" class="tab-content" >
+  <div class="container">
+    <div class="card">
+      <h2>Registro de Entrenamiento</h2>
+      <div class="form-group">
+        <label>Día:</label>
+        <select id="daySelect">
+          <option value="lunes">Lunes</option>
+          <option value="martes">Martes</option>
+          <option value="miercoles">Miércoles</option>
+          <option value="jueves">Jueves</option>
+          <option value="viernes">Viernes</option>
+          <option value="sabado">Sábado</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Ejercicio:</label><input type="text" id="exerciseName" placeholder="Ej: Sentadillas"></div>
+      <div class="form-group"><label>Series:</label><input type="number" id="exerciseSets" placeholder="N° de series"></div>
+      <div class="form-group"><label>Repeticiones:</label><input type="number" id="exerciseReps" placeholder="Reps por serie"></div>
+      <div class="form-group"><label>Peso (kg):</label><input type="number" id="exerciseWeight" placeholder="Peso utilizado"></div>
+      <button class="btn" onclick="addTraining()">Registrar</button>
+    </div>
+
+    <div class="card">
+      <h2>Plan Semanal</h2>
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; color:#fff; text-align:center;">
+          <thead>
+            <tr style="background:#111; color:var(--amarillo);">
+              <th style="padding:8px; border:1px solid #444;">Lunes</th>
+              <th style="padding:8px; border:1px solid #444;">Martes</th>
+              <th style="padding:8px; border:1px solid #444;">Miércoles</th>
+              <th style="padding:8px; border:1px solid #444;">Jueves</th>
+              <th style="padding:8px; border:1px solid #444;">Viernes</th>
+              <th style="padding:8px; border:1px solid #444;">Sábado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="lunes"></td>
+              <td id="martes"></td>
+              <td id="miercoles"></td>
+              <td id="jueves"></td>
+              <td id="viernes"></td>
+              <td id="sabado"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Función para obtener datos de entrenamiento del usuario actual
+function getEntrenamientosUsuario() {
+  let usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+  if (!usuarioActivo) return { lunes: [], martes: [], miercoles: [], jueves: [], viernes: [], sabado: [] };
+  
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  let usuario = usuarios.find(u => u.email === usuarioActivo.email);
+  
+  if (!usuario || !usuario.entrenamientos) {
+    return { lunes: [], martes: [], miercoles: [], jueves: [], viernes: [], sabado: [] };
+  }
+  
+  return usuario.entrenamientos;
+}
+
+// Función para guardar entrenamientos del usuario actual
+function saveEntrenamientosUsuario(entrenamientos) {
+  let usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+  if (!usuarioActivo) return;
+  
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  let usuarioIndex = usuarios.findIndex(u => u.email === usuarioActivo.email);
+  
+  if (usuarioIndex !== -1) {
+    usuarios[usuarioIndex].entrenamientos = entrenamientos;
+    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    
+    // Actualizar usuario activo también
+    usuarioActivo.entrenamientos = entrenamientos;
+    localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
+  }
+}
+
+function addTraining() {
+  const dia = document.getElementById("daySelect").value;
+  const ejercicio = document.getElementById("exerciseName").value;
+  const sets = document.getElementById("exerciseSets").value;
+  const reps = document.getElementById("exerciseReps").value;
+  const peso = document.getElementById("exerciseWeight").value;
+
+  if (!ejercicio || !sets || !reps) {
+    alert("Completa todos los campos antes de registrar");
+    return;
+  }
+
+  const registro = `${ejercicio} - ${sets}x${reps}${peso ? " - " + peso + "kg" : ""}`;
+  
+  // Obtener entrenamientos del usuario actual
+  let entrenamientos = getEntrenamientosUsuario();
+  entrenamientos[dia].push(registro);
+
+  // Guardar en el usuario actual
+  saveEntrenamientosUsuario(entrenamientos);
+  renderEntrenamientos();
+
+  // Limpiar inputs
+  document.getElementById("exerciseName").value = "";
+  document.getElementById("exerciseSets").value = "";
+  document.getElementById("exerciseReps").value = "";
+  document.getElementById("exerciseWeight").value = "";
+}
+
+function removeTraining(dia, index) {
+  let entrenamientos = getEntrenamientosUsuario();
+  entrenamientos[dia].splice(index, 1);
+  saveEntrenamientosUsuario(entrenamientos);
+  renderEntrenamientos();
+}
+
+function renderEntrenamientos() {
+  let entrenamientos = getEntrenamientosUsuario();
+  
+  for (const dia in entrenamientos) {
+    const celda = document.getElementById(dia);
+    if (entrenamientos[dia].length === 0) {
+      celda.innerHTML = `<p style="color:#777; font-size:.9rem;">---</p>`;
+    } else {
+      celda.innerHTML = entrenamientos[dia].map((e, i) => `
+        <div style="margin:4px 0; padding:6px; background:#0d0d0d; border:1px solid #333; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+          <span>${e}</span>
+          <button onclick="removeTraining('${dia}',${i})" style="background:transparent; color:#ff4c4c; border:1px solid #ff4c4c; border-radius:6px; padding:2px 6px; cursor:pointer;">✘</button>
+        </div>
+      `).join("");
+    }
+  }
+}
+</script>
+
+
+    <!-- NUTRICIÓN (Nutricalculadora) -->
+    <section id="nutrition" class="tab-content">
+      <div class="container">
+        <div class="card">
+          <h2>Nutricalculadora</h2>
+
+          <div class="nutri-grid">
+            <div class="form-group">
+              <label for="foodSelect">Seleccionar alimento:</label>
+              <select id="foodSelect">
+                <option value="" disabled selected> Elegí un alimento </option>
+                <!-- comunes en AR (por 100 g) -->
+                <option value="carneMagra">Carne vacuna magra</option>
+                <option value="asado">Asado (vacuno)</option>
+                <option value="polloPechuga">Pollo (pechuga)</option>
+                <option value="cerdo">Cerdo</option>
+                <option value="merluza">Pescado (merluza)</option>
+                <option value="atunLata">Atún al natural (lata, escurrido)</option>
+                <option value="huevo">Huevo</option>
+                <option value="lecheEntera">Leche entera</option>
+                <option value="yogurDescremado">Yogur descremado</option>
+                <option value="quesoCremoso">Queso cremoso</option>
+                <option value="panFrances">Pan francés</option>
+                <option value="fideosCocidos">Fideos cocidos</option>
+                <option value="arrozCocido">Arroz blanco cocido</option>
+                <option value="avenaSeca">Avena (seca)</option>
+                <option value="papaHervida">Papa hervida</option>
+                <option value="batataHervida">Batata hervida</option>
+                <option value="arvejasCocidas">Arvejas cocidas</option>
+                <option value="lentejasCocidas">Lentejas cocidas</option>
+                <option value="aceiteGirasol">Aceite de girasol</option>
+                <option value="manzana">Manzana</option>
+                <option value="banana">Banana</option>
+                <option value="naranja">Naranja</option>
+                <option value="tomate">Tomate</option>
+                <option value="zanahoria">Zanahoria</option>
+                <option value="lechuga">Lechuga</option>
+                <option value="dulceLeche">Dulce de leche</option>
+                <option value="mantecaMani">Manteca de maní</option>
+                <option value="jamonCocido">Jamón cocido</option>
+                <option value="panceta">Panceta Ahumada</option>
+                <option value="chele">Leche Descremada</option>
+                <option value="quesoCrema">Queso Crema</option>
+                <option value="chori">Chorizo</option>
+                <option value="cab">Caballa</option>
+                <option value="lim">Limón</option>
+                <option value="man">Maní</option>
+                <option value="cav">Caviar</option>
+                <option value="lang">Langostino</option>
+                <option value="cal">Calamar</option>
+                <option value="ace">Acelga</option>
+                <option value="achi">Achicoria</option>
+                <option value="aji">Morrón Rojo</option>
+                <option value="calab">Calabaza</option>
+                <option value="ceboia">Cebolla</option>
+                <option value="espi">Espinaca</option>
+                <option value="cho">Choclo</option>
+                <option value="pal">Palta</option>
+                <option value="remo">Remolacha</option>
+                <option value="harina">Harina</option>
+                <option value="harinaI">Harina Integral</option>
+                <option value="Tah">Tallarines al Huevo</option>
+                <option value="FideosI">Fideos de Harina Integral</option>
+                <option value="ñoqui">Ñoquis de Papa</option>
+                <option value="mant">Manteca</option>
+                <option value="azucar">Azucar Blanca</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="foodGrams">Cantidad (gramos):</label>
+              <input type="number" id="foodGrams" placeholder="Ej: 150">
+            </div>
+          </div>
+
+          <button class="btn" onclick="addFood()">Agregar al plato</button>
+          <button class="btn" style="margin-left:8px;background:#111;color:var(--amarillo);border:2px solid var(--amarillo)" onclick="clearPlate()">Borrar</button>
+
+          <div class="plate-list" id="plateList"></div>
+
+          <div class="summary" id="sumCards">
+            <!-- tarjetas de totales -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROGRESO -->
+    <section id="progress" class="tab-content">
+  <div class="container">
+    <div class="card">
+      <h2>Medición de Progreso Corporal</h2>
+      <p class="muted">Registrá tus mediciones cada 2 semanas para ver tu evolución.</p>
+
+      <div class="form-group"><label>Pecho (cm):</label><input type="number" id="pecho"></div>
+      <div class="form-group"><label>Brazo derecho (cm):</label><input type="number" id="brazoDer"></div>
+      <div class="form-group"><label>Brazo izquierdo (cm):</label><input type="number" id="brazoIzq"></div>
+      <div class="form-group"><label>Tres dedos arriba del ombligo (cm):</label><input type="number" id="cinturaAlta"></div>
+      <div class="form-group"><label>A la altura del ombligo (cm):</label><input type="number" id="cintura"></div>
+      <div class="form-group"><label>Tres dedos abajo del ombligo (cm):</label><input type="number" id="cinturaBaja"></div>
+      <div class="form-group"><label>Cadera/glúteos (cm):</label><input type="number" id="cadera"></div>
+      <div class="form-group"><label>Muslo derecho (cm):</label><input type="number" id="musloDer"></div>
+      <div class="form-group"><label>Muslo izquierdo (cm):</label><input type="number" id="musloIzq"></div>
+
+      <button class="btn" onclick="guardarMediciones()">Guardar mediciones</button>
+    </div>
+
+    <div class="card">
+      <h2>Historial de mediciones</h2>
+      <div id="tablaMediciones" class="muted">Todavía no registraste ninguna medición.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:15px; text-align:center;">
+  <button class="btn" onclick="resetearHistorial()">Resetear historial</button>
+</div>
+
+</section>
+
+<!-- CONTACTO -->
+<section id="contact" class="tab-content">
+  <!-- Video en pantalla completa -->
+  <section class="video-hero">
+    <video autoplay muted loop playsinline>
+      <source src="video1.mp4" type="video/mp4">
+    </video>
+  </section>
+
+<div class="container">
+    <div class="card">
+      <h2>Contacto</h2>
+      <p class="muted">Si querés más información o tenés alguna consulta, podés escribirnos a través de este formulario.</p>
+    </div>
+  </div>
+
+ <div class="container">
+  <div class="card">
+    <h3>Dejanos tu mensaje</h3>
+    <form id="contactForm">
+      <div class="form-group">
+        <label>Nombre:</label>
+        <input type="text" name="user_name" placeholder="Tu nombre" required>
+      </div>
+      <div class="form-group">
+        <label>Email:</label>
+        <input type="email" name="user_email" placeholder="tucorreo@mail.com" required>
+      </div>
+      <div class="form-group">
+        <label>Mensaje:</label>
+        <textarea name="message" rows="4" placeholder="Escribí tu consulta" required></textarea>
+      </div>
+      <button type="submit" class="btn">Enviar</button>
+    </form>
+  </div>
+</div>
+</section>
+  
+<section id="asignar" class="tab-content">
+  <div class="card">
+    <h2>Asignar Planes</h2>
+    <select id="entrenadoSelect"></select>
+    <textarea id="planTexto" placeholder="Escribe el plan..."></textarea>
+    <button class="btn" onclick="asignarPlan()">Asignar</button>
+    <div id="listaPlanesEntrenador"></div>
+  </div>
+</section>
+
+<!-- Panel Mis Planes (solo para ENTRENADO) -->
+<section id="misplanes" class="tab-content">
+  <div class="card">
+    <h2>Mis Planes</h2>
+    <ul id="planesEntrenado"></ul>
+  </div>
+</section>
+
+<script>
+  // Función para obtener mediciones del usuario actual
+function getMedicionesUsuario() {
+  let usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+  if (!usuarioActivo) return [];
+  
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  let usuario = usuarios.find(u => u.email === usuarioActivo.email);
+  
+  return usuario && usuario.mediciones ? usuario.mediciones : [];
+}
+
+// Función para guardar mediciones del usuario actual
+function saveMedicionesUsuario(mediciones) {
+  let usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+  if (!usuarioActivo) return;
+  
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  let usuarioIndex = usuarios.findIndex(u => u.email === usuarioActivo.email);
+  
+  if (usuarioIndex !== -1) {
+    usuarios[usuarioIndex].mediciones = mediciones;
+    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    
+    // Actualizar usuario activo también
+    usuarioActivo.mediciones = mediciones;
+    localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
+  }
+}
+
+function guardarMediciones() {
+  const nueva = {
+    fecha: new Date().toLocaleDateString(),
+    pecho: parseFloat(document.getElementById('pecho').value) || 0,
+    brazoDer: parseFloat(document.getElementById('brazoDer').value) || 0,
+    brazoIzq: parseFloat(document.getElementById('brazoIzq').value) || 0,
+    cinturaAlta: parseFloat(document.getElementById('cinturaAlta').value) || 0,
+    cintura: parseFloat(document.getElementById('cintura').value) || 0,
+    cinturaBaja: parseFloat(document.getElementById('cinturaBaja').value) || 0,
+    cadera: parseFloat(document.getElementById('cadera').value) || 0,
+    musloDer: parseFloat(document.getElementById('musloDer').value) || 0,
+    musloIzq: parseFloat(document.getElementById('musloIzq').value) || 0
+  };
+  
+  let mediciones = getMedicionesUsuario();
+  mediciones.push(nueva);
+  saveMedicionesUsuario(mediciones);
+  renderMediciones();
+  
+  alert("¡Mediciones guardadas!");
+  document.querySelectorAll("#progress input").forEach(i => i.value = "");
+}
+
+function renderMediciones() {
+  let mediciones = getMedicionesUsuario();
+  
+  if (mediciones.length === 0) {
+    document.getElementById('tablaMediciones').innerHTML = "Todavía no registraste ninguna medición.";
+    return;
+  }
+
+  let html = `<table style="width:100%; border-collapse:collapse; color:#fff;">
+    <thead>
+      <tr style="background:#111; color:var(--amarillo);">
+        <th style="padding:8px; border:1px solid #444;">Fecha</th>
+        <th style="padding:8px; border:1px solid #444;">Pecho</th>
+        <th style="padding:8px; border:1px solid #444;">Brazo D</th>
+        <th style="padding:8px; border:1px solid #444;">Brazo I</th>
+        <th style="padding:8px; border:1px solid #444;">Cintura ↑</th>
+        <th style="padding:8px; border:1px solid #444;">Cintura</th>
+        <th style="padding:8px; border:1px solid #444;">Cintura ↓</th>
+        <th style="padding:8px; border:1px solid #444;">Cadera</th>
+        <th style="padding:8px; border:1px solid #444;">Muslo D</th>
+        <th style="padding:8px; border:1px solid #444;">Muslo I</th>
+      </tr>
+    </thead><tbody>`;
+
+  for (let i = 0; i < mediciones.length; i++) {
+    const m = mediciones[i];
+    const prev = mediciones[i - 1] || {};
+    html += `<tr style="text-align:center;">
+      <td style="padding:6px; border:1px solid #333;">${m.fecha}</td>
+      ${comparar(m.pecho, prev.pecho)}
+      ${comparar(m.brazoDer, prev.brazoDer)}
+      ${comparar(m.brazoIzq, prev.brazoIzq)}
+      ${comparar(m.cinturaAlta, prev.cinturaAlta)}
+      ${comparar(m.cintura, prev.cintura)}
+      ${comparar(m.cinturaBaja, prev.cinturaBaja)}
+      ${comparar(m.cadera, prev.cadera)}
+      ${comparar(m.musloDer, prev.musloDer)}
+      ${comparar(m.musloIzq, prev.musloIzq)}
+    </tr>`;
+  }
+  html += "</tbody></table>";
+  document.getElementById('tablaMediciones').innerHTML = html;
+}
+
+function comparar(actual, anterior) {
+  if (!anterior) return `<td style="padding:6px; border:1px solid #333;">${actual}</td>`;
+  let diff = actual - anterior;
+  let flecha = diff > 0 ? "⬆" : (diff < 0 ? "⬇" : "-");
+  let color = diff > 0 ? "#00ff88" : (diff < 0 ? "#ff4c4c" : "#fff");
+  return `<td style="padding:6px; border:1px solid #333; color:${color};">${actual} ${flecha}</td>`;
+}
+</script>
+
+<script>
+function enviarContacto(){
+  const nombre = document.getElementById("contactName").value;
+  const email = document.getElementById("contactEmail").value;
+  const msg = document.getElementById("contactMsg").value;
+
+  if(!nombre || !email || !msg){
+    alert("Por favor completá todos los campos.");
+    return;
+  }
+  alert("Gracias por contactarnos, " + nombre + ". ¡Te responderemos pronto!");
+  
+  // limpiar
+  document.getElementById("contactName").value = "";
+  document.getElementById("contactEmail").value = "";
+  document.getElementById("contactMsg").value = "";
+}
+</script>
+
+<script>
+  /* ======= NAVEGACIÓN / PESTAÑAS ======= */
+  function showTab(evt, tabName){
+    // ocultar todo
+    document.querySelectorAll('.tab-content').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.topnav button').forEach(b=>b.classList.remove('active'));
+    // mostrar el tab elegido
+    document.getElementById(tabName).classList.add('active');
+    evt.target.classList.add('active');
+    // ir al tope
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  /* ======= GRÁFICO DEMO ======= */
+  document.addEventListener('DOMContentLoaded',()=>{
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    new Chart(ctx,{
+      type:'line',
+      data:{
+        labels:['Sem 1','Sem 2','Sem 3','Sem 4'],
+        datasets:[{
+          label:'Progreso (ejemplo)',
+          data:[5,9,14,18],
+          borderColor:'#FFD700',
+          backgroundColor:'rgba(255,215,0,.2)',
+          borderWidth:3,
+          fill:true
+        }]
+      },
+      options:{responsive:true, maintainAspectRatio:false}
+    });
+  });
+
+  /* ======= NUTRICALCULADORA ======= */
+  // Valores aprox. por 100 g 
+  const db = {
+    carneMagra:     {cal: 165, prot: 26,  carb: 0,   grasa: 6,   fibra:0},
+    asado:          {cal: 250, prot: 24,  carb: 0,   grasa: 18,  fibra:0},
+    polloPechuga:   {cal: 165, prot: 31,  carb: 0,   grasa: 3.6, fibra:0},
+    cerdo:          {cal: 242, prot: 27,  carb: 0,   grasa: 14,  fibra:0},
+    merluza:        {cal: 86,  prot: 17,  carb: 0,   grasa: 1.3, fibra:0},
+    atunLata:       {cal: 120, prot: 26,  carb: 0,   grasa: 1,   fibra:0},
+    huevo:          {cal: 155, prot: 13,  carb: 1.1, grasa: 11,  fibra:0},
+    lecheEntera:    {cal: 60,  prot: 3.2, carb: 5,   grasa: 3.2, fibra:0},
+    yogurDescremado:{cal: 45,  prot: 4,   carb: 6,   grasa: 0.3, fibra:0},
+    quesoCremoso:   {cal: 270, prot: 18,  carb: 2,   grasa: 21,  fibra:0},
+    panFrances:     {cal: 270, prot: 9,   carb: 52,  grasa: 2.5, fibra:2.7},
+    fideosCocidos:  {cal: 150, prot: 5.5, carb: 30,  grasa: 1,   fibra:1.8},
+    arrozCocido:    {cal: 130, prot: 2.4, carb: 28,  grasa: 0.2, fibra:0.4},
+    avenaSeca:      {cal: 389, prot: 16.9,carb: 66,  grasa: 6.9, fibra:10.6},
+    papaHervida:    {cal: 87,  prot: 2,   carb: 20,  grasa: 0.1, fibra:1.8},
+    batataHervida:  {cal: 90,  prot: 2,   carb: 21,  grasa: 0.1, fibra:3},
+    arvejasCocidas: {cal: 84,  prot: 5.4, carb: 15,  grasa: 0.4, fibra:5.1},
+    lentejasCocidas:{cal: 116, prot: 9,   carb: 20,  grasa: 0.4, fibra:7.9},
+    aceiteGirasol:  {cal: 884, prot: 0,   carb: 0,   grasa: 100, fibra:0},
+    manzana:        {cal: 52,  prot: 0.3, carb: 14,  grasa: 0.2, fibra:2.4},
+    banana:         {cal: 89,  prot: 1.1, carb: 23,  grasa: 0.3, fibra:2.6},
+    naranja:        {cal: 47,  prot: 0.9, carb: 12,  grasa: 0.1, fibra:2.4},
+    tomate:         {cal: 18,  prot: 0.9, carb: 3.9, grasa: 0.2, fibra:1.2},
+    zanahoria:      {cal: 41,  prot: 0.9, carb: 10,  grasa: 0.2, fibra:2.8},
+    lechuga:        {cal: 15,  prot: 1.4, carb: 2.9, grasa: 0.2, fibra:1.3},
+    dulceLeche:     {cal: 315, prot: 7,   carb: 55,  grasa: 7,   fibra:0},
+    mantecaMani:    {cal: 588, prot: 25,  carb: 20,  grasa: 50,  fibra:6},
+    jamonCocido:    {cal: 145, prot: 20,  carb: 2,   grasa: 6,   fibra:0},
+    panceta:        {cal: 558, prot: 58,  carb: 9,   grasa: 31,   fibra:0},
+    chele:          {cal:45	 , prot:3.1 ,  carb:4.7 ,   grasa:1.5 ,   fibra:0},
+    quesoCrema:     {cal:245	 , prot:3.7 ,  carb:8.2 ,   grasa:22 ,   fibra:0},
+    chori:          {cal:373	 , prot:12.5 ,  carb:2 ,   grasa:31 ,   fibra:0},
+    cab:            {cal:165	 , prot:21.3 ,  carb:0 ,   grasa:8.2 ,   fibra:0},
+    lim:            {cal:29	 , prot:0.6 ,  carb:8.1 ,   grasa:0.6 ,   fibra:2.8},
+    man:            {cal:560 , prot:26.7 ,  carb:17.5 ,   grasa:47.3 ,   fibra:8},
+    cav:            {cal:262 , prot:26.9 ,  carb:3.3 ,   grasa:15 ,   fibra:0},
+    lang:          {cal:115, prot:17.9 ,  carb:0 ,   grasa:4.3 ,   fibra:0},
+    cal:            {cal:78, prot:16.4 ,  carb:0 ,   grasa:0.9 ,   fibra:0},
+    ace:            {cal:25, prot:2.4	,  carb:4.6 ,   grasa:0.3 ,   fibra:1.6},
+    achi:           {cal:20	, prot:1.8	,  carb:3.8 ,   grasa:0.3 ,   fibra:4.0},
+    aji:            {cal:24	, prot:0.8	,  carb:5.1 ,   grasa:0.3 ,   fibra:2.34}, 
+    calab:          {cal:26	, prot:1	,  carb:6.5 ,   grasa:0.1 ,   fibra:2},
+    ceboia:         {cal:38		, prot:1.5	,  carb:8.7 ,   grasa:0.1 ,   fibra:1.7},
+    espi:           {cal:26		, prot:3.2	,  carb:4.3 ,   grasa:0.3 ,   fibra:2.2},
+    cho:            {cal:96		, prot:3.5	,  carb:22.1 ,   grasa:1 ,   fibra:2.7},
+    pal:            {cal:162		, prot:1.8	,  carb:6.4 ,   grasa:16 ,   fibra:10},
+    remo:           {cal:44	, prot:1.7	,  carb:9.5 ,   grasa:0.1 ,   fibra:2.8},
+    harina:         {cal:345	, prot:9.5	,  carb:74.5 ,   grasa:1.1 ,   fibra:0},
+    harinaI:        {cal:333	, prot:13.3	,  carb:71 ,   grasa:2 ,   fibra:0},
+    TaH:            {cal:287		, prot:9.2	,  carb:56.8 ,   grasa:2.6 ,   fibra:0},
+    FideosI:        {cal:359		, prot:15.4	,  carb:70 ,   grasa:1.7 ,   fibra:0},
+    ñoqui:          {cal:246		, prot:6.3	,  carb:40.2 ,   grasa:6.6 ,   fibra:0},
+    mant:           {cal:744		, prot:1.5	,  carb:0 ,   grasa:82 ,   fibra:0},
+    azucar:         {cal:385		, prot:0	,  carb:99.5 ,   grasa:0 ,   fibra:0},
+  };
+
+  let plate = []; // items del plato
+
+  function addFood(){
+    const key   = document.getElementById('foodSelect').value;
+    const grams = parseFloat(document.getElementById('foodGrams').value);
+    if(!key || !grams || grams<=0){
+      alert('Elegí un alimento y una cantidad válida en gramos.'); return;
+    }
+    const d = db[key], f = grams/100;
+    const item = {
+      name: document.querySelector(`#foodSelect option[value="${key}"]`).textContent,
+      grams,
+      cal: +(d.cal*f).toFixed(1),
+      prot:+(d.prot*f).toFixed(1),
+      carb:+(d.carb*f).toFixed(1),
+      grasa:+(d.grasa*f).toFixed(1),
+      fibra:+(d.fibra*f).toFixed(1),
+    };
+    plate.push(item);
+    document.getElementById('foodGrams').value='';
+    renderPlate();
+  }
+
+  function removeItem(idx){ plate.splice(idx,1); renderPlate(); }
+  function clearPlate(){ plate = []; renderPlate(); }
+
+  function renderPlate(){
+    const list = document.getElementById('plateList');
+    if(plate.length===0){ list.innerHTML = '<p class="muted">Agregá alimentos para ver el detalle del plato.</p>'; }
+    else{
+      list.innerHTML = plate.map((it,i)=>`
+        <div class="plate-item">
+          <div><strong>${it.name}</strong> • ${it.grams} g</div>
+          <div>
+            <small>${it.cal} kcal · ${it.prot} g prot · ${it.carb} g carb · ${it.grasa} g grasa · ${it.fibra} g fibra</small>
+            <button onclick="removeItem(${i})" title="Quitar">✕</button>
+          </div>
+        </div>`).join('');
+    }
+    // totales
+    const totals = plate.reduce((a,b)=>({
+      cal:a.cal+b.cal, prot:a.prot+b.prot, carb:a.carb+b.carb, grasa:a.grasa+b.grasa, fibra:a.fibra+b.fibra
+    }),{cal:0,prot:0,carb:0,grasa:0,fibra:0});
+    document.getElementById('sumCards').innerHTML = `
+      <div class="chip"><h4>${totals.cal.toFixed(0)}</h4><div>Calorías</div></div>
+      <div class="chip"><h4>${totals.prot.toFixed(1)}</h4><div>Proteínas (g)</div></div>
+      <div class="chip"><h4>${totals.carb.toFixed(1)}</h4><div>Carbohidratos (g)</div></div>
+      <div class="chip"><h4>${totals.grasa.toFixed(1)}</h4><div>Grasas (g)</div></div>
+      <div class="chip"><h4>${totals.fibra.toFixed(1)}</h4><div>Fibra (g)</div></div>
+    `;
+  }
+
+  // inicializar estado vacío
+  renderPlate();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+  (function(){
+    emailjs.init("L-NyvzlA-3k2HP07t"); 
+  })();
+</script>
+
+<script>
+document.getElementById("contactForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  emailjs.sendForm("service_ctc1oer", "template_4yn63vk", this)
+    .then(function() {
+      alert("¡Tu mensaje fue enviado con éxito!");
+      document.getElementById("contactForm").reset();
+    }, function(error) {
+      alert("¡Error al enviar!" + JSON.stringify(error));
+    });
+});
+</script>
+
+<script>
+  // Guardar usuario en localStorage
+  function registrarUsuario(){
+    const nombre = document.getElementById("registerName").value;
+    const email  = document.getElementById("registerEmail").value;
+    const pass   = document.getElementById("registerPassword").value;
+    const rol    = document.getElementById("rol").value;
+
+    if(!nombre || !email || !pass){
+      alert("Por favor completa todos los campos");
+      return;
+    }
+
+    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+    // verificar si el mail ya existe
+    if(usuarios.some(u => u.email === email)){
+      alert("Este email ya está registrado");
+      return;
+    }
+
+    usuarios.push({ nombre, email, pass, rol });
+    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+    alert("Usuario registrado con éxito");
+    showTab({target:document.querySelector('.topnav button[onclick*="login"]')},'login');
+  }
+
+function iniciarSesion(){
+  const email = document.getElementById("loginEmail").value;
+  const pass  = document.getElementById("loginPassword").value;
+
+  if(!email || !pass){
+    alert("Por favor completa todos los campos");
+    return;
+  }
+
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  let usuario = usuarios.find(u => u.email === email && u.pass === pass);
+
+  if(!usuario){
+    alert("Credenciales incorrectas");
+    return;
+  }
+
+  // Guardar sesión activa
+  localStorage.setItem("usuarioActivo", JSON.stringify(usuario));
+  renderEntrenamientos();
+  renderMediciones();
+
+  // Actualizar bienvenida
+  document.querySelector(".logo").innerText = "¡Bienvenido, " + usuario.nombre + "!";
+
+  // Ocultar botón registrar
+  document.getElementById("btnRegister").style.display = "none";
+
+  // Mostrar botón de entrenamiento en el menú
+  document.querySelector("button[onclick*='workout']").style.display = "inline-block";
+  document.querySelector("button[onclick*='progress']").style.display = "inline-block";
+
+  // --- Limpiar botones dinámicos anteriores ---
+  document.querySelectorAll(".topnav .dynamic").forEach(b => b.remove());
+
+  // --- Botón Cerrar sesión ---
+  let nav = document.querySelector(".topnav");
+  let logoutBtn = document.createElement("button");
+  logoutBtn.classList.add("dynamic");
+  logoutBtn.innerText = "Cerrar sesión";
+  logoutBtn.onclick = cerrarSesion;
+  nav.appendChild(logoutBtn);
+
+  // --- Botones según rol ---
+  if(usuario.rol === "entrenador"){
+    let asignarBtn = document.createElement("button");
+    asignarBtn.classList.add("dynamic");
+    asignarBtn.innerText = "Asignar Planes";
+    asignarBtn.onclick = (e)=>showTab(e,'asignar');
+    nav.appendChild(asignarBtn);
+
+    cargarEntrenados();
+    mostrarPlanesEntrenador();
+
+  } else if(usuario.rol === "entrenado"){
+    let misPlanesBtn = document.createElement("button");
+    misPlanesBtn.classList.add("dynamic");
+    misPlanesBtn.innerText = "Mis Planes";
+    misPlanesBtn.onclick = (e)=>showTab(e,'misplanes');
+    nav.appendChild(misPlanesBtn);
+
+    mostrarPlanesEntrenado(usuario);
+  }
+
+  // Ir al inicio
+  showTab({target:document.querySelector('.topnav .logo')},'home');
+}
+
+
+</script>
+
+<section id="panelEntrenado" class="tab-content" style="display:none;">
+  <div class="container">
+    <h2>Mis Planes</h2>
+
+    <table style="width:100%; border-collapse:collapse; color:#fff; text-align:center; margin-top:15px;">
+      <thead>
+        <tr style="background:#111; color:var(--amarillo);">
+          <th style="padding:8px; border:1px solid #444;">#</th>
+          <th style="padding:8px; border:1px solid #444;">Plan asignado</th>
+        </tr>
+      </thead>
+      <tbody id="planesEntrenado"></tbody>
+    </table>
+  </div>
+</section>
+
+
+<script>
+function cargarEntrenados(){
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  let entrenados = usuarios.filter(u => u.rol === "entrenado");
+  let select = document.getElementById("entrenadoSelect");
+  
+  select.innerHTML = '<option value="">Selecciona un entrenado</option>';
+  
+  entrenados.forEach(u => {
+    let option = document.createElement("option");
+    option.value = u.email;
+    option.textContent = `${u.nombre} (${u.email})`;
+    select.appendChild(option);
+  });
+}
+
+function asignarPlan() {
+  let emailEntrenado = document.getElementById("entrenadoSelect").value;
+  let planTexto = document.getElementById("planTexto").value.trim();
+
+  if(!emailEntrenado || !planTexto){
+    alert("Por favor selecciona un entrenado y escribe un plan");
+    return;
+  }
+
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  let entrenadoIndex = usuarios.findIndex(u => u.email === emailEntrenado);
+  
+  if(entrenadoIndex !== -1){
+    usuarios[entrenadoIndex].plan = planTexto; // Un solo plan
+    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    
+    // Actualizar usuario activo si es el mismo entrenado
+    let usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+    if(usuarioActivo && usuarioActivo.email === emailEntrenado){
+      usuarioActivo.plan = planTexto;
+      localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
+    }
+    
+    alert(`Plan asignado correctamente a ${usuarios[entrenadoIndex].nombre}`);
+    limpiarFormulario();
+    mostrarPlanesEntrenador();
+  }
+}                                                                                                    
+
+  function mostrarPlanesEntrenador(){
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  let entrenados = usuarios.filter(u => u.rol === "entrenado" && u.plan);
+  let container = document.getElementById("listaPlanesEntrenador");
+  
+  if(entrenados.length === 0){
+    container.innerHTML = '<h3>Planes Asignados</h3><p class="muted">No has asignado planes aún.</p>';
+    return;
+  }
+  
+  let html = '<h3>Planes Asignados</h3>';
+  entrenados.forEach(entrenado => {
+    html += `
+      <div class="card" style="margin-bottom:15px; background:#0a0a0a;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+          <h4 style="color:var(--amarillo); margin:0;">${entrenado.nombre}</h4>
+          <div>
+            <button onclick="editarPlan('${entrenado.email}')" 
+                    style="background:#444; color:#fff; border:1px solid #666; padding:8px 12px; border-radius:6px; cursor:pointer; margin-right:8px;">
+              Editar
+            </button>
+            <button onclick="eliminarPlan('${entrenado.email}')" 
+                    style="background:#ff4444; color:#fff; border:1px solid #ff6666; padding:8px 12px; border-radius:6px; cursor:pointer;">
+              Eliminar
+            </button>
+          </div>
+        </div>
+        <div style="background:#111; padding:12px; border-radius:8px; border-left:4px solid var(--amarillo);">
+          <p style="color:#ccc; margin:0; white-space:pre-wrap;">${entrenado.plan}</p>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+
+function mostrarPlanesEntrenado(usuario){
+  let lista = document.getElementById("planesEntrenado");
+  
+  if(usuario.plan){
+    lista.innerHTML = `
+      <div style="background:#111; padding:20px; border-radius:12px; border-left:4px solid var(--amarillo);">
+        <h4 style="color:var(--amarillo); margin-bottom:12px;">Tu Plan de Entrenamiento</h4>
+        <p style="color:#ccc; margin:0; line-height:1.6; white-space:pre-wrap;">${usuario.plan}</p>
+      </div>
+    `;
+  } else {
+    lista.innerHTML = '<p class="muted">Tu entrenador aún no te ha asignado un plan.</p>';
+  }
+}
+
+function cerrarSesion(){
+  // Borrar usuario activo
+  localStorage.removeItem("usuarioActivo");
+
+  // Restaurar logo
+  document.querySelector(".logo").innerText = "ATHLON";
+
+  // Mostrar otra vez "Registrarse"
+  document.getElementById("btnRegister").style.display = "inline-block";
+
+  // Ocultar botones y secciones privadas
+  document.getElementById("btnAsignar").style.display = "none";
+  document.getElementById("btnMisPlanes").style.display = "none";
+  document.querySelector("button[onclick*='workout']").style.display = "none";
+  document.querySelector("button[onclick*='progress']").style.display = "none";
+  // Recargar página (para limpiar estado visual)
+  location.reload();
+}
+
+
+function editarPlan(emailEntrenado){
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  let entrenado = usuarios.find(u => u.email === emailEntrenado);
+  
+  if(entrenado && entrenado.plan){
+    document.getElementById("entrenadoSelect").value = emailEntrenado;
+    document.getElementById("planTexto").value = entrenado.plan;
+    
+    // Hacer scroll al formulario
+    document.querySelector("#asignar .card").scrollIntoView({behavior: 'smooth'});
+    alert(`Editando plan de ${entrenado.nombre}`);
+  }
+}
+
+function eliminarPlan(emailEntrenado){
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  let entrenado = usuarios.find(u => u.email === emailEntrenado);
+  
+  if(!entrenado || !entrenado.plan){
+    return;
+  }
+  
+  if(!confirm(`¿Estás seguro de eliminar el plan de ${entrenado.nombre}?`)){
+    return;
+  }
+  
+  let entrenadoIndex = usuarios.findIndex(u => u.email === emailEntrenado);
+  delete usuarios[entrenadoIndex].plan;
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+  
+  // Actualizar usuario activo si es el mismo
+  let usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+  if(usuarioActivo && usuarioActivo.email === emailEntrenado){
+    delete usuarioActivo.plan;
+    localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
+  }
+  
+  alert("Plan eliminado correctamente");
+  mostrarPlanesEntrenador();
+}
+
+function actualizarUsuarioActivoSiCoincide(entrenadoActualizado){
+  let usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+  if(usuarioActivo && usuarioActivo.email === entrenadoActualizado.email){
+    localStorage.setItem("usuarioActivo", JSON.stringify(entrenadoActualizado));
+    // Si el entrenado está viendo sus planes, actualizar vista
+    if(document.getElementById("misplanes").classList.contains("active")){
+      mostrarPlanesEntrenado(entrenadoActualizado);
+    }
+  }
+}
+
+function limpiarFormulario(){
+  document.getElementById("entrenadoSelect").value = "";
+  document.getElementById("planTexto").value = "";
+}
+
+// Función para cargar datos del usuario al iniciar sesión
+function cargarDatosUsuario() {
+  let usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+
+  if(!usuario) return;
+
+  // 🔹 Solo inicializar lo básico de sesión
+  document.querySelector(".logo").innerText = "¡Bienvenido, " + usuario.nombre + "!";
+
+}
+
+</script>
+
+
+<script>
+function resetearHistorial(){
+  if(confirm("¿Seguro que quieres borrar todo el historial de mediciones?")){
+    let usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+    // Buscar el usuario en la lista
+    let u = usuarios.find(u => u.email === usuarioActivo.email);
+    if(u){
+      u.mediciones = [];  // 🔥 Borra el historial
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+      // Actualizar también el usuario activo
+      usuarioActivo.mediciones = [];
+      localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
+
+      alert("Historial borrado correctamente.");
+      mostrarHistorialMediciones(); // ⚡ refresca la tabla
+    }
+  }
+}
+</script>
+
+<section id="asignar" class="tab-content">
+  <div class="container">
+    <div class="card">
+      <h2>Asignar Planes a Entrenados</h2>
+      
+      <div class="form-group">
+        <label for="entrenadoSelect">Seleccionar entrenado:</label>
+        <select id="entrenadoSelect">
+          <option value="">Selecciona un entrenado</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="planTexto">Plan de entrenamiento:</label>
+        <textarea id="planTexto" rows="6" placeholder="Escribe el plan detallado aquí..."></textarea>
+      </div>
+      
+      <button class="btn" onclick="asignarPlan()">Asignar Plan</button>
+      <button class="btn" style="background:#333; margin-left:10px;" onclick="limpiarFormulario()">Limpiar</button>
+      
+      <div id="listaPlanesEntrenador" style="margin-top:30px;"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/service-worker.js")
+      .then(() => console.log("✅ Service Worker registrado"))
+      .catch(err => console.error("❌ Error registrando Service Worker:", err));
+  }
+</script>
+
+
+</body>
+</html>
