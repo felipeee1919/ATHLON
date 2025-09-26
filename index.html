@@ -250,11 +250,49 @@
     height: 50vh;
   }
 }
+
+/* Menú responsivo */
+.menu-toggle {
+  display: none;
+  font-size: 1.8rem;
+  color: var(--amarillo);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+  .topnav {
+    justify-content: space-between;
+    padding: 10px;
+  }
+
+  .topnav button {
+    display: none; /* Ocultar botones por defecto en móvil */
+  }
+
+  .topnav.active button {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin: 6px 0;
+  }
+
+  .menu-toggle {
+    display: block; /* Mostrar hamburguesa en móvil */
+  }
+
+  .topnav .logo {
+    position: static;
+  }
+}
+  
 </style>
 </head>
 <body>
   <div class="topnav">
    <div class="logo" onclick="showTab(event, 'home')" style="cursor:pointer;">ATHLON</div>
+  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
   <button onclick="showTab(event,'workout')" style="display:none;">Entrenamiento</button>
   <button onclick="showTab(event,'nutrition')">Nutrición</button>
   <button onclick="showTab(event,'progress')" style="display:none;">Progreso</button>
@@ -1354,7 +1392,13 @@ function resetearHistorial(){
   }
 </script>
 
-
+  <script>
+  function toggleMenu() {
+  document.querySelector(".topnav").classList.toggle("active");
+}
+</script>
+  
 </body>
 </html>
+
 
