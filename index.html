@@ -186,6 +186,33 @@ input, select, textarea{
   }
 }
 
+/* Hamburguesa como imagen */
+.menu-toggle {
+  display: none;  /* por defecto oculta en escritorio */
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  filter: invert(100%); /* si tu ícono es negro, lo hace blanco */
+}
+
+@media screen and (max-width: 768px) {
+  .menu-toggle {
+    display: block; /* en móvil se muestra */
+  }
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px; right: 10px;
+    background: #000;
+    border: 2px solid var(--amarillo);
+    border-radius: 8px;
+    padding: 10px;
+    z-index: 999;
+  }
+  .nav-links.show { display: flex; }
+}
+
 </style>
 </head>
 <body>
@@ -1301,6 +1328,7 @@ function toggleMenu() {
   
 </body>
 </html>
+
 
 
 
