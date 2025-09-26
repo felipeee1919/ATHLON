@@ -159,6 +159,97 @@
   transform: translate(-50%, -50%);
 }
 
+/* 📱 Ajustes para móviles */
+@media screen and (max-width: 768px) {
+
+  /* Barra superior */
+  .topnav {
+    flex-direction: column;
+    height: auto;
+    padding: 8px;
+  }
+
+  .topnav .logo {
+    position: static;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .topnav button {
+    width: 100%;
+    margin: 4px 0;
+    padding: 10px;
+  }
+
+  /* Contenedor */
+  .container {
+    padding: 12px;
+    width: 100%;
+  }
+
+  /* Tarjetas */
+  .card {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  /* Formularios */
+  input, select, textarea {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 12px;
+  }
+
+  /* Grillas */
+  .nutri-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Tablas (entrenamiento, progreso) */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+
+  table th, table td {
+    min-width: 100px;
+    padding: 6px;
+  }
+
+  /* Hero con video */
+  .hero {
+    height: 70vh; /* más chico en móvil */
+  }
+
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .cta {
+    width: 100%;
+    font-size: 1rem;
+    padding: 10px;
+  }
+
+  /* Video dentro de secciones */
+  .video-hero {
+    height: 50vh;
+  }
+}
 </style>
 </head>
 <body>
@@ -1266,3 +1357,4 @@ function resetearHistorial(){
 
 </body>
 </html>
+
