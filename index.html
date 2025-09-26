@@ -9,290 +9,191 @@
 <link rel="preload" as="video" href="media/hero.mp4"> <!-- ajusta ruta -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <style>
-  :root{
+ :root{
     --negro:#000;
     --negro2:#0b0b0b;
     --amarillo:#FFD700;
     --amarillo-10: rgba(255,215,0,.10);
     --amarillo-20: rgba(255,215,0,.20);
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
     font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     background: var(--negro);
     color:#f1f1f1;
     min-height:100vh;
-  }
-
-  /* Barra superior fija */
-  .topnav{
-    position:fixed; top:0; left:0; right:0; z-index:1000;
-    display:flex; gap:10px; align-items:center; justify-content:center;
-    background: #070707; border-bottom:2px solid var(--amarillo);
-    padding:10px 12px;
-    height: 60px; /* Nueva línea - altura específica */
 }
-  .topnav .logo{
-    position:absolute; left:16px; font-weight:900; letter-spacing:1px;
+
+/* Barra superior fija */
+.topnav{
+    position:fixed; top:0; left:0; right:0; z-index:1000;
+    display:flex; align-items:center; justify-content:space-between;
+    background: #070707; border-bottom:2px solid var(--amarillo);
+    padding:10px 16px;
+    height: 60px;
+}
+.topnav .logo{
+    font-weight:900; letter-spacing:1px;
     color:var(--amarillo);
-  }
-  .topnav button{
+}
+
+/* Botones */
+.topnav button{
     background:transparent; color:var(--amarillo);
     border:2px solid transparent; padding:10px 16px;
     border-radius:10px; font-weight:700; cursor:pointer;
     transition:.2s;
-  }
-  .topnav button.active,
-  .topnav button:hover{ border-color:var(--amarillo); background:var(--amarillo-10); }
+}
+.topnav button.active,
+.topnav button:hover{ border-color:var(--amarillo); background:var(--amarillo-10); }
 
-  /* Compensar barra fija */
- .content{padding-top: 50px;}
+/* Compensar barra fija */
+.content{padding-top: 60px;}
 
-  /* HERO con video de fondo */
-  .hero {
+/* HERO con video de fondo */
+.hero {
   position: relative;
-  height: 100vh; /* ocupa toda la pantalla */
+  height: 100vh;
   overflow: hidden;
   border-bottom: 2px solid var(--amarillo);
-  }
-  .hero video {
+}
+.hero video {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   object-fit: cover;
-  }
-  .hero::after{
-    content:""; position:absolute; inset:0;
-    background: linear-gradient(to top, rgba(0,0,0,.65), rgba(0,0,0,.2));
-  }
-  .hero .hero-content{
-    position:relative; z-index:2; height:100%;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; padding:0 16px;
-  }
-  .hero h1{
-    font-size:clamp(2rem, 5vw, 3.2rem);
-    color:#fff; text-shadow:0 0 30px rgba(0,0,0,.7);
-    margin-bottom:10px;
-  }
-  .hero p{
-    font-size:clamp(1rem, 2.2vw, 1.25rem);
-    color:#f5f5f5; opacity:.9; margin-bottom:22px;
-  }
-  .cta{
-    background:var(--amarillo); color:#000; font-weight:900;
-    border:none; padding:12px 22px; border-radius:12px; cursor:pointer;
-    box-shadow:0 6px 18px var(--amarillo-20); transition:.2s;
-  }
-  .cta:hover{ transform:translateY(-2px); }
-  
-  /* Contenedores y tarjetas */
-  .container{ max-width:1100px; margin:0 auto; padding:24px 16px; }
-  .card{
-    background:#111; border:2px solid var(--amarillo); border-radius:16px;
-    padding:24px; margin-bottom:26px; box-shadow:0 10px 30px rgba(255,215,0,.15);
-  }
-  h2{ color:#fff; margin-bottom:12px; }
-  .muted{ color:#cfcfcf; opacity:.85; }
+}
+.hero::after{
+  content:""; position:absolute; inset:0;
+  background: linear-gradient(to top, rgba(0,0,0,.65), rgba(0,0,0,.2));
+}
+.hero .hero-content{
+  position:relative; z-index:2; height:100%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:0 16px;
+}
+.hero h1{
+  font-size:clamp(2rem, 5vw, 3.2rem);
+  color:#fff; text-shadow:0 0 30px rgba(0,0,0,.7);
+  margin-bottom:10px;
+}
+.hero p{
+  font-size:clamp(1rem, 2.2vw, 1.25rem);
+  color:#f5f5f5; opacity:.9; margin-bottom:22px;
+}
+.cta{
+  background:var(--amarillo); color:#000; font-weight:900;
+  border:none; padding:12px 22px; border-radius:12px; cursor:pointer;
+  box-shadow:0 6px 18px var(--amarillo-20); transition:.2s;
+}
+.cta:hover{ transform:translateY(-2px); }
 
-  .form-group{ margin-bottom:16px; }
-  label{ display:block; margin-bottom:6px; color:var(--amarillo); font-weight:800; }
-  input, select, textarea{
-    width:100%; padding:12px; border-radius:10px;
-    border:2px solid var(--amarillo); background:#000; color:#f1f1f1;
-  }
-  .btn{
-    background:var(--amarillo); color:#000; padding:12px 20px; border:none;
-    border-radius:10px; font-weight:800; cursor:pointer;
-  }
-  .btn:hover{ box-shadow:0 6px 14px var(--amarillo-20); }
+/* Contenedores y tarjetas */
+.container{ max-width:1100px; margin:0 auto; padding:24px 16px; }
+.card{
+  background:#111; border:2px solid var(--amarillo); border-radius:16px;
+  padding:24px; margin-bottom:26px; box-shadow:0 10px 30px rgba(255,215,0,.15);
+}
+h2{ color:#fff; margin-bottom:12px; }
+.muted{ color:#cfcfcf; opacity:.85; }
 
-  /* Pestañas (secciones) */
-  .tab-content{ display:none; }
-  .tab-content.active{ display:block; }
+.form-group{ margin-bottom:16px; }
+label{ display:block; margin-bottom:6px; color:var(--amarillo); font-weight:800; }
+input, select, textarea{
+  width:100%; padding:12px; border-radius:10px;
+  border:2px solid var(--amarillo); background:#000; color:#f1f1f1;
+}
+.btn{
+  background:var(--amarillo); color:#000; padding:12px 20px; border:none;
+  border-radius:10px; font-weight:800; cursor:pointer;
+}
+.btn:hover{ box-shadow:0 6px 14px var(--amarillo-20); }
 
-  /* Nutricalculadora */
-  .nutri-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
-  .summary{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px; margin-top:16px;
-  }
-  .chip{
-    background: #0e0e0e; border:2px solid var(--amarillo);
-    border-radius:12px; padding:12px; text-align:center;
-  }
-  .chip h4{ color:var(--amarillo); font-size:1.4rem; margin-bottom:4px; }
+/* Pestañas */
+.tab-content{ display:none; }
+.tab-content.active{ display:block; }
 
-  .plate-list{ margin-top:14px; }
-  .plate-item{
-    display:flex; justify-content:space-between; align-items:center;
-    background:#0d0d0d; border:1px solid #2a2a2a; border-left:4px solid var(--amarillo);
-    padding:10px 12px; border-radius:10px; margin-bottom:8px;
-  }
-  .plate-item button{
-    background:transparent; color:var(--amarillo); border:1px solid var(--amarillo);
-    padding:4px 10px; border-radius:8px; cursor:pointer;
-  }
+/* Nutricalculadora */
+.nutri-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+.summary{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px; margin-top:16px;
+}
+.chip{
+  background: #0e0e0e; border:2px solid var(--amarillo);
+  border-radius:12px; padding:12px; text-align:center;
+}
+.chip h4{ color:var(--amarillo); font-size:1.4rem; margin-bottom:4px; }
 
-  /* Gráfico */
-  .chart-container{ position:relative; height:360px; }
+.plate-list{ margin-top:14px; }
+.plate-item{
+  display:flex; justify-content:space-between; align-items:center;
+  background:#0d0d0d; border:1px solid #2a2a2a; border-left:4px solid var(--amarillo);
+  padding:10px 12px; border-radius:10px; margin-bottom:8px;
+}
+.plate-item button{
+  background:transparent; color:var(--amarillo); border:1px solid var(--amarillo);
+  padding:4px 10px; border-radius:8px; cursor:pointer;
+}
 
-  .video-hero {
+/* Gráfico */
+.chart-container{ position:relative; height:360px; }
+
+.video-hero {
   position: relative;
-  width: 100%;
-  height: 100vh; /* ocupa toda la pantalla */
+  width: 100%; height: 100vh;
   overflow: hidden;
   margin: 20px 0;
   border: 2px solid var(--amarillo);
   border-radius: 12px;
 }
-
 .video-hero video {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* llena sin deformar */
+  top: 50%; left: 50%;
+  width: 100%; height: 100%;
+  object-fit: cover;
   transform: translate(-50%, -50%);
 }
 
-/* 📱 Ajustes para móviles */
+/* 📱 Ajustes móviles */
 @media screen and (max-width: 768px) {
-
-  /* Barra superior */
-  .topnav {
+  /* Ocultar links por defecto */
+  .nav-links {
+    display: none;
     flex-direction: column;
-    height: auto;
-    padding: 8px;
+    position: absolute;
+    top: 60px; right: 10px;
+    background: #000;
+    border: 2px solid var(--amarillo);
+    border-radius: 8px;
+    padding: 10px;
+    z-index: 999;
   }
+  .nav-links.show { display: flex; }
 
-  .topnav .logo {
-    position: static;
-    margin-bottom: 8px;
-    text-align: center;
+  /* Hamburguesa como imagen */
+  .menu-toggle {
+    display: block;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    filter: invert(100%); /* opcional: convierte negro → blanco */
   }
 
   .topnav button {
     width: 100%;
-    margin: 4px 0;
-    padding: 10px;
-  }
-
-  /* Contenedor */
-  .container {
-    padding: 12px;
-    width: 100%;
-  }
-
-  /* Tarjetas */
-  .card {
-    padding: 16px;
-    margin-bottom: 16px;
-  }
-
-  /* Formularios */
-  input, select, textarea {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  .btn {
-    width: 100%;
-    padding: 12px;
-  }
-
-  /* Grillas */
-  .nutri-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .summary {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  /* Tablas (entrenamiento, progreso) */
-  table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-    font-size: 12px;
-  }
-
-  table th, table td {
-    min-width: 100px;
-    padding: 6px;
-  }
-
-  /* Hero con video */
-  .hero {
-    height: 70vh; /* más chico en móvil */
-  }
-
-  .hero h1 {
-    font-size: 1.8rem;
-  }
-
-  .hero p {
-    font-size: 1rem;
-  }
-
-  .cta {
-    width: 100%;
-    font-size: 1rem;
-    padding: 10px;
-  }
-
-  /* Video dentro de secciones */
-  .video-hero {
-    height: 50vh;
-  }
-}
-
-/* Menú responsivo */
-.menu-toggle {
-  display: none;
-  font-size: 1.8rem;
-  color: var(--amarillo);
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-@media screen and (max-width: 768px) {
-  .topnav {
-    justify-content: space-between;
-    padding: 10px;
-  }
-
-  .topnav button {
-    display: none; /* Ocultar botones por defecto en móvil */
-  }
-
-  .topnav.active button {
-    display: block;
-    width: 100%;
-    text-align: center;
     margin: 6px 0;
   }
-
-  .menu-toggle {
-    display: block; /* Mostrar hamburguesa en móvil */
-  }
-
-  .topnav .logo {
-    position: static;
-  }
 }
-  
+
 </style>
 </head>
 <body>
   <div class="topnav">
    <div class="logo" onclick="showTab(event, 'home')" style="cursor:pointer;">ATHLON</div>
-  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+  <img src="menu.png" alt="menu" class="menu-toggle" onclick="toggleMenu()">
+
+  <div class="nav-links">
   <button onclick="showTab(event,'workout')" style="display:none;">Entrenamiento</button>
   <button onclick="showTab(event,'nutrition')">Nutrición</button>
   <button onclick="showTab(event,'progress')" style="display:none;">Progreso</button>
@@ -1393,12 +1294,13 @@ function resetearHistorial(){
 </script>
 
   <script>
-  function toggleMenu() {
-  document.querySelector(".topnav").classList.toggle("active");
+function toggleMenu() {
+  document.querySelector(".nav-links").classList.toggle("show");
 }
 </script>
   
 </body>
 </html>
+
 
 
